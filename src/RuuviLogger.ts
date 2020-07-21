@@ -69,7 +69,7 @@ export class RuuviLogger {
 
     private onTag(tag: RuuviTag): void {
         const {tags} = this.options
-        if (!tags.length || tags.includes(tag.id)) {
+        if (!tags.length || tags.includes(tag.address)) {
             tag.on('updated', this.getReadingHandler(tag))
         }
     }
