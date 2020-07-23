@@ -10,6 +10,7 @@ licenses*
 .tmp
 config
 .influxdb
+log.txt
 
 ## ------------------------ Node + Runtime
 node_modules/
