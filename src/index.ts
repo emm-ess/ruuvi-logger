@@ -12,8 +12,9 @@ async function main() {
     const filePath = path.resolve(__dirname, '../config/config.json')
     const fileContent = fs.readFileSync(filePath, {encoding: 'utf-8'})
     const config = JSON.parse(fileContent) as Config
+    const tags = (config.tags && Object.values(config.tags)) || []
     const loggerConfig = {
-        tags: Object.values(config.tags),
+        tags,
         influx: config.influx,
     }
     const logger = new RuuviLogger(loggerConfig)
