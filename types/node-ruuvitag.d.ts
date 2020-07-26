@@ -19,8 +19,8 @@ declare module 'node-ruuvitag' {
     export type Ruuvi = EventEmitterHelper<RuuviEvents> & {
         scanning: boolean
         listenerAttached: boolean
-        start: VoidFunction
-        stop: VoidFunction
+        start: () => void
+        stop: () => void
         findTags: () => Promise<RuuviTag[]>
     }
 

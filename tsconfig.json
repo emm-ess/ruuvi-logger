@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "outDir": "dist",
-        "target": "esnext",
+        "target": "es2019",
         "module": "commonjs",
         "strict": true,
         "jsx": "preserve",
@@ -13,7 +13,7 @@
         "sourceMap": true,
         "baseUrl": ".",
         "types": ["webpack-env", "jest"],
-        "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+        "lib": ["esnext", "es2019", "es2020.bigint", "es2020.string", "es2020.symbol.wellknown"],
         "paths": {
             "@/*": ["src/*"]
         }

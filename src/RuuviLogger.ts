@@ -1,40 +1,23 @@
 import ruuvi, {RuuviTag, RuuviTagReading} from 'node-ruuvitag'
-import {InfluxDB, FieldType} from 'influx'
-import type Influx from 'influx'
+import type {InfluxDB} from 'influx'
 
 import Logger from './lib/Logger'
+import {MEASUREMENT} from './const'
 
 export type RuuviLoggerOptions = {
-    tags: string[]
-    influx: Omit<Influx.ISingleHostConfig, 'schema'>
-}
-
-const MEASUREMENT = 'climate'
-const SCHEMA: Influx.ISchemaOptions = {
-    measurement: MEASUREMENT,
-    fields: {
-        temperature: FieldType.FLOAT,
-        humidity: FieldType.FLOAT,
-        pressure: FieldType.INTEGER,
-        battery: FieldType.INTEGER,
-    },
-    tags: ['sensor'],
-}
-
-const DEFAULT_INFLUX_OPTIONS: Omit<Influx.ISingleHostConfig, 'schema'> = {
-    database: 'ruuvi_readings',
+    allowedTags?: string[]
+    influx: InfluxDB
 }
 
 export class RuuviLogger {
-    private options: RuuviLoggerOptions
     private influx: InfluxDB
 
-    constructor(options: RuuviLoggerOptions) {
-        this.options = RuuviLogger.parseOptions(options)
-        this.influx = new InfluxDB({
-            ...options.influx,
-            schema: [SCHEMA],
-        })
+    private allowedTags?: string[]
+    public tags: RuuviTag[] = []
+
+    constructor({allowedTags, influx}: RuuviLoggerOptions) {
+        this.allowedTags = allowedTags
+        this.influx = influx
 
         ruuvi.on('found', this.onTag.bind(this))
         ruuvi.on('warning', (message) => {
@@ -43,40 +26,19 @@ export class RuuviLogger {
         })
     }
 
-    private static parseOptions(
-        options: RuuviLoggerOptions,
-    ): RuuviLoggerOptions {
-        const parsed = Object.assign(
-            {
-                tags: [],
-                influx: {},
-            },
-            options,
-        )
-        Object.assign(parsed.influx, DEFAULT_INFLUX_OPTIONS, options.influx)
-        return parsed
-    }
 
-    private async createDatabase(): Promise<void> {
-        const dbName = this.options.influx.database as string
-        const dbNames = await this.influx.getDatabaseNames()
-        if (!dbNames.includes(dbName)) {
-            await this.influx.createDatabase(dbName)
-            Logger.info('database created')
-        }
-    }
 
     public async start(): Promise<void> {
-        await this.createDatabase()
         ruuvi.start()
         Logger.info('started')
     }
 
     private onTag(tag: RuuviTag): void {
-        const {tags} = this.options
+        const {allowedTags} = this
         Logger.log(`found tag ${tag.id}`)
-        if (!tags.length || tags.includes(tag.id)) {
+        if (!(allowedTags?.length) || allowedTags.includes(tag.id)) {
             tag.on('updated', this.getReadingHandler(tag))
+            this.tags.push(tag)
             Logger.info(`subscribed to tag ${tag.id}`)
         }
     }

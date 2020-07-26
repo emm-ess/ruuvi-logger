@@ -26,19 +26,19 @@ export default {
     set logLevel(level: LogLevel) {
         logLevel = level
     },
-    get logLevel() {
+    get logLevel(): LogLevel {
         return logLevel
     },
-    log(msg: string) {
-        (logLevel <= LogLevel.log) && writeMsg(msg)
+    log(msg: string): void {
+        logLevel <= LogLevel.log && writeMsg(msg)
     },
-    info(msg: string) {
-        (logLevel <= LogLevel.info) && writeMsg(msg)
+    info(msg: string): void {
+        logLevel <= LogLevel.info && writeMsg(msg)
     },
-    warn(msg: string) {
-        (logLevel <= LogLevel.warn) && writeMsg(msg)
+    warn(msg: string): void {
+        logLevel <= LogLevel.warn && writeMsg(msg)
     },
-    error(msg: string) {
-        (logLevel <= LogLevel.error) && writeMsg(msg)
+    error(msg: string): void {
+        logLevel <= LogLevel.error && writeMsg(msg)
     },
 }
